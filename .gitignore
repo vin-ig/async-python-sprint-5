@@ -1,4 +1,9 @@
-
+venv
+.env
 .idea/
 __pycache__/
 *.pyc
+draft.py
+*.db
+.DS_Store
+pgdata

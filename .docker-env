@@ -1,0 +1,10 @@
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=postgres
+DB_HOST=sprint_5_db
+DB_PORT=5432
+
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_NAME=postgres
+POSTGRES_DB=postgres
