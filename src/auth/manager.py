@@ -2,15 +2,16 @@ import uuid
 from typing import Optional
 
 from fastapi import Depends, Request
-from fastapi_users import BaseUserManager, UUIDIDMixin
+from fastapi_users import BaseUserManager, UUIDIDMixin, IntegerIDMixin
 
-from .database import User, get_user_db
+from .database import get_user_db
 from ..core.config import app_settings, logger
+from ..models import User
 
 SECRET = app_settings.manager_secret.get_secret_value()
 
 
-class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
+class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
     reset_password_token_secret = SECRET
     verification_token_secret = SECRET
 

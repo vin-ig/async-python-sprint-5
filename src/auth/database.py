@@ -2,7 +2,8 @@ from typing import AsyncGenerator
 
 from fastapi import Depends
 from fastapi_users.db import SQLAlchemyBaseUserTableUUID, SQLAlchemyUserDatabase
-from sqlalchemy import Column, String
+from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
+from sqlalchemy import Column, String, Integer
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import declarative_base
@@ -10,16 +11,10 @@ from sqlalchemy.orm.decl_api import DeclarativeMeta
 # from src.models.schemas import Base
 
 from src.core.config import app_settings
+from src.models import User
 
 DATABASE_URL = app_settings.db_dsn
 
-
-class Base(DeclarativeBase):
-    pass
-
-
-class User(SQLAlchemyBaseUserTableUUID, Base):
-    name = Column(String(50), nullable=False)
 
 
 engine = create_async_engine(DATABASE_URL)

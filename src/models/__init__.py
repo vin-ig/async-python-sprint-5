@@ -1,5 +1,6 @@
 __all__ = [
     'User',
+    'File',
 ]
 
-from ..auth.database import User
+from .schemas import User, File

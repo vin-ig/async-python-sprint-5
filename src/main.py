@@ -1,32 +1,32 @@
 import uuid
+from asyncio import exceptions
+import asyncio
+import os
+import socket
 
+from asyncpg import exceptions
 from fastapi_users import FastAPIUsers
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from .auth.auth import auth_backend
-from .auth.database import User
+from .auth.auth import auth_backend, fastapi_users
 from fastapi import FastAPI, Depends
 from fastapi.responses import ORJSONResponse
-from fastapi_users import fastapi_users
 
 from .app.main import router as api_router
 from .auth.manager import get_user_manager
 from .auth.schemas import UserRead, UserCreate
-from .core.config import app_settings
+from .core.config import app_settings, logger
 # from .services.middleware import check_allowed_ip
+from .db.db import get_async_session
+from .models import User
 
 app = FastAPI(
     title=app_settings.app_title,
-    docs_url='/api/openapi',
+    docs_url='/openapi',
     openapi_url='/api/openapi.json',
     default_response_class=ORJSONResponse,
     # dependencies=[Depends(check_allowed_ip)]
-)
-app.include_router(api_router)
-
-
-fastapi_users = FastAPIUsers[User, uuid.UUID](
-    get_user_manager,
-    [auth_backend],
 )
 
 app.include_router(
@@ -39,3 +39,31 @@ app.include_router(
     prefix="/auth",
     tags=["auth"],
 )
+
+app.include_router(api_router)
+
+
+@app.get('/ping/')
+async def check_db_connect(session: AsyncSession = Depends(get_async_session)):
+    """ Проверяет статус подключения к БД. Обратить внимание на закрывающийся слэш в эндпоинте и строке запроса! """
+    query = select(User).limit(1)
+    
+    try:
+        await session.execute(query)
+        logger.info('DB connect: success')
+        return {'success': True, 'detail': None}
+    except exceptions.InvalidPasswordError as exc:
+        logger.info(f'DB connect: failure. Exception: {exc}')
+        return {'success': False, 'detail': exc}
+    except exceptions.InvalidCatalogNameError as exc:
+        logger.info(f'DB connect: failure. Exception: {exc}')
+        return {'success': False, 'detail': exc}
+    except (socket.gaierror, OSError):
+        logger.info('DB connect: failure. Exception: Invalid db host or port')
+        return {'success': False, 'detail': 'Invalid db host or port'}
+    except asyncio.exceptions.TimeoutError:
+        logger.info('DB connect: failure. Exception: TimeoutError')
+        return {'success': False, 'detail': 'TimeoutError'}
+    except Exception as exc:
+        logger.info(f'DB connect: failure. Unexpected Error: {exc}')
+        return {'success': False, 'detail': exc}

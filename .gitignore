@@ -7,3 +7,9 @@ draft.py
 *.db
 .DS_Store
 pgdata
+uploads
+temp
+draft
+.7z
+.zip
+.tar

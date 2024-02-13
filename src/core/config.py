@@ -12,6 +12,8 @@ logger = logging.getLogger()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+ZIP = ['zip', '7z', 'tar']
+
 BLACK_LIST: list[str] = [
     # '127.0.0.1',
 ]
@@ -37,6 +39,8 @@ class AppSettings(BaseSettings):
     db_name_test: str
     db_host_test: str
     db_port_test: str
+
+    base_upload_dir: str
 
     @property
     def db_dsn(self):
