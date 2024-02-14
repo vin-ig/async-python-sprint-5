@@ -51,15 +51,8 @@ async def upload_file(
     return new_file
 
 
-# statement = insert(File).values({
-#     'filename': f'{full_path}/{filename}',
-#     'size': file_size,
-#     'user_id': 1
-# })
-# # await session.execute(statement)
-
-@router.get('/', tags=['Get files list'])
-async def get_files(session: AsyncSession = Depends(get_async_session), user: User = Depends(current_user)):
+@router.get('/', tags=['Get files list'], status_code=status.HTTP_200_OK)
+async def get_file_list(session: AsyncSession = Depends(get_async_session), user: User = Depends(current_user)):
     query = select(File).where(File.user_id == user.id)
     execute = await session.execute(query)
     result = execute.scalars().all()
@@ -69,7 +62,7 @@ async def get_files(session: AsyncSession = Depends(get_async_session), user: Us
     }
 
 
-@router.get("/download", tags=['Download'], status_code=status.HTTP_200_OK)
+@router.get('/download', tags=['Download'], status_code=status.HTTP_200_OK)
 async def download_file(
     file_path: str,
     session: AsyncSession = Depends(get_async_session),
@@ -92,7 +85,7 @@ async def download_file(
         return file_resp
     
     if compression in ZIP and isinstance(array, (tuple, list)):
-        temp_dir = "temp"
+        temp_dir = 'temp'
         os.makedirs(temp_dir, exist_ok=True)
 
         file_paths = []

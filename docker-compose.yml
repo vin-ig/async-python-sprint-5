@@ -19,20 +19,20 @@ services:
       timeout: 3s
       retries: 3
 
-#  db_test:
-#    image: postgres:latest
-#    container_name: db_test
-#    environment:
-#      POSTGRES_USER: postgres
-#      POSTGRES_PASSWORD: postgres
-#      POSTGRES_DB: postgres
-#    ports:
-#      - "5050:5432"
+  db_test:
+    image: postgres:latest
+    container_name: db_test
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5050:5432"
 
 #  app:
 #    build:
 #      context: .
-#    container_name: sprint_4_app
+#    container_name: sprint_5_app
 #    command: ["./docker/app.sh"]
 #    env_file:
 #      - .docker-env
