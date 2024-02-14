@@ -14,10 +14,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 ZIP = ['zip', '7z', 'tar']
 
-BLACK_LIST: list[str] = [
-    # '127.0.0.1',
-]
-
 
 class AppSettings(BaseSettings):
     app_title: str
@@ -41,6 +37,8 @@ class AppSettings(BaseSettings):
     db_port_test: str
 
     base_upload_dir: str
+    temp_directory: str
+    arch_directory: str
 
     @property
     def db_dsn(self):
@@ -50,6 +48,14 @@ class AppSettings(BaseSettings):
     def db_dsn_test(self):
         return f'postgresql+asyncpg://{self.db_user_test}:{self.db_password_test.get_secret_value()}@' \
                f'{self.db_host_test}:{self.db_port_test}/{self.db_name_test}'
+    
+    @property
+    def temp_dir(self):
+        return os.path.join(self.base_upload_dir, self.temp_directory)
+
+    @property
+    def arch_dir(self):
+        return os.path.join(self.base_upload_dir, self.arch_directory)
 
     class Config:
         env_file = '.env'

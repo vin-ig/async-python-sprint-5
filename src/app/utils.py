@@ -4,6 +4,8 @@ import zipfile
 
 from py7zr import SevenZipFile
 from sqlalchemy import select, and_
+
+from src.core.config import app_settings
 from src.models import File
 import py7zr
 
@@ -51,13 +53,13 @@ async def find_file(session, user, file_path):
     return file[0] if len(file) == 1 else None
 
 
-def get_archive(file_paths, temp_dir, compression):
-    archive_file = f'archive.{compression}'
+def get_archive(file_paths, compression):
+    archive_file = f'{app_settings.arch_dir}/archive.{compression}'
     if compression == 'zip':
         with zipfile.ZipFile(archive_file, 'w') as zip_file:
             for file_path in file_paths:
                 file_name = os.path.basename(file_path)
-                zip_file.write(os.path.join(temp_dir, file_name), file_name)
+                zip_file.write(os.path.join(app_settings.temp_dir, file_name), file_name)
         return zip_file.filename
     elif compression == '7z':
         with py7zr.SevenZipFile(archive_file, 'w') as szf:
@@ -68,5 +70,5 @@ def get_archive(file_paths, temp_dir, compression):
         with tarfile.open(archive_file, 'w') as tar:
             for file_path in file_paths:
                 file_name = os.path.basename(file_path)
-                tar.add(os.path.join(temp_dir, file_name), arcname=file_name)
+                tar.add(os.path.join(app_settings.temp_dir, file_name), arcname=file_name)
         return tar.name

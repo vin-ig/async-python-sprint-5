@@ -85,8 +85,9 @@ async def download_file(
         return file_resp
     
     if compression in ZIP and isinstance(array, (tuple, list)):
-        temp_dir = 'temp'
-        os.makedirs(temp_dir, exist_ok=True)
+        shutil.rmtree(app_settings.arch_dir, ignore_errors=True)
+        os.makedirs(app_settings.temp_dir, exist_ok=True)
+        os.makedirs(app_settings.arch_dir, exist_ok=True)
 
         file_paths = []
         for file_path in array:
@@ -94,16 +95,17 @@ async def download_file(
             if file:
                 file_paths.append(file.filename)
                 file_name = os.path.basename(file.filename)
-                shutil.copyfile(file.filename, os.path.join(temp_dir, file_name))
+                shutil.copyfile(file.filename, os.path.join(app_settings.temp_dir, file_name))
         if not file_paths:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail='Files not found',
             )
         
-        archive_name = get_archive(file_paths, temp_dir, compression)
-        shutil.rmtree(temp_dir)
-        return FileResponse(archive_name, filename=archive_name)
+        archive_name = get_archive(file_paths, compression)
+        response = FileResponse(archive_name, filename=archive_name)
+        shutil.rmtree(app_settings.temp_dir)
+        return response
         
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
