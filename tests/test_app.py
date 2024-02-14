@@ -2,10 +2,9 @@ import os
 
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
-from sqlalchemy import select
 
-from .conftest import async_session_maker, TstUser
 from src.main import app
+from .conftest import TstUser
 
 client = TestClient(app)
 
@@ -38,6 +37,6 @@ async def test_get_file_list(ac: AsyncClient, user: TstUser):
 async def test_download_file(ac: AsyncClient, user: TstUser):
     response = await ac.get('/files/download', params={'file_path': 1}, headers=user.headers)
     assert response.status_code == 200
-    
+
     response = await ac.get('/files/download', params={'file_path': 13}, headers=user.headers)
     assert response.status_code == 404

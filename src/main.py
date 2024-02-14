@@ -1,23 +1,16 @@
-import uuid
-from asyncio import exceptions
 import asyncio
-import os
 import socket
+from asyncio import exceptions
 
-from asyncpg import exceptions
-from fastapi_users import FastAPIUsers
+from fastapi import FastAPI, Depends
+from fastapi.responses import ORJSONResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .auth.auth import auth_backend, fastapi_users
-from fastapi import FastAPI, Depends
-from fastapi.responses import ORJSONResponse
-
 from .app.main import router as api_router
-from .auth.manager import get_user_manager
+from .auth.auth import auth_backend, fastapi_users
 from .auth.schemas import UserRead, UserCreate
 from .core.config import app_settings, logger
-# from .services.middleware import check_allowed_ip
 from .db.db import get_async_session
 from .models import User
 
@@ -26,7 +19,6 @@ app = FastAPI(
     docs_url='/openapi',
     openapi_url='/api/openapi.json',
     default_response_class=ORJSONResponse,
-    # dependencies=[Depends(check_allowed_ip)]
 )
 
 app.include_router(
@@ -47,7 +39,7 @@ app.include_router(api_router)
 async def check_db_connect(session: AsyncSession = Depends(get_async_session)):
     """ Проверяет статус подключения к БД. Обратить внимание на закрывающийся слэш в эндпоинте и строке запроса! """
     query = select(User).limit(1)
-    
+
     try:
         await session.execute(query)
         logger.info('DB connect: success')

@@ -1,5 +1,4 @@
 import asyncio
-import json
 from typing import AsyncGenerator
 
 import pytest
@@ -8,12 +7,11 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
-from src.models.schemas import Base
-
-from src.db.db import get_async_session
-from src.main import app
 
 from src.core.config import app_settings
+from src.db.db import get_async_session
+from src.main import app
+from src.models.schemas import Base
 
 engine_test = create_async_engine(app_settings.db_dsn_test, poolclass=NullPool)
 async_session_maker = sessionmaker(engine_test, class_=AsyncSession, expire_on_commit=False)
@@ -59,10 +57,6 @@ class TstUser:
         self.token = token
         self.uid = uid
         self.headers = {'Authorization': f'Bearer {self.token}'}
-
-    # def set_token(self, token):
-    #     self.token = token
-    #     self.headers = {'Authorization': f'Bearer {self.token}'}
 
 
 @pytest.fixture(scope='session')

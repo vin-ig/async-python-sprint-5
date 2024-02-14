@@ -1,23 +1,17 @@
-import asyncio
 import os
 import shutil
-import socket
-import zipfile
-from tarfile import TarFile
 from types import NoneType
 
-from asyncpg import exceptions
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Request, UploadFile, File
-from sqlalchemy import select, insert, update, delete, Delete, Update
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import FileResponse
 
-from .utils import save_file, prepare_full_path, get_file_by_path, get_file_by_id, find_file, get_archive
+from .utils import save_file, prepare_full_path, find_file, get_archive
 from ..auth.auth import current_user
-from ..core.config import logger, app_settings, ZIP
+from ..core.config import app_settings, ZIP
 from ..db.db import get_async_session
-from ..main import fastapi_users
-from ..models import File, User
+from ..models import User, File
 
 router = APIRouter(prefix='/files')
 PATH = app_settings.base_upload_dir
@@ -25,7 +19,7 @@ PATH = app_settings.base_upload_dir
 
 @router.post("/upload", tags=["Upload"], status_code=status.HTTP_201_CREATED)
 async def upload_file(
-    file: UploadFile = File(),
+    file: UploadFile,
     path: str = '',
     session: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_user)
@@ -33,7 +27,7 @@ async def upload_file(
     if path and path[0] != '/':
         path = '/' + path
     directory = PATH + path
-    
+
     full_path, filename = prepare_full_path(directory, file.filename)
 
     await save_file(file, full_path, filename)
@@ -73,7 +67,7 @@ async def download_file(
         array = eval(file_path)
     except (NameError, SyntaxError):
         array = None
-        
+
     if compression is None and isinstance(array, (int, NoneType)):
         file = await find_file(session, user, file_path)
         if file is None:
@@ -83,7 +77,7 @@ async def download_file(
             )
         file_resp = FileResponse(file.filename)
         return file_resp
-    
+
     if compression in ZIP and isinstance(array, (tuple, list)):
         shutil.rmtree(app_settings.arch_dir, ignore_errors=True)
         os.makedirs(app_settings.temp_dir, exist_ok=True)
@@ -101,16 +95,13 @@ async def download_file(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail='Files not found',
             )
-        
+
         archive_name = get_archive(file_paths, compression)
         response = FileResponse(archive_name, filename=archive_name)
         shutil.rmtree(app_settings.temp_dir)
         return response
-        
+
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
         detail='Incorrect input parameters',
     )
-    
-    
-

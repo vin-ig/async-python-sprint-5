@@ -1,8 +1,6 @@
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
-from sqlalchemy import select
 
-from .conftest import async_session_maker
 from src.main import app
 
 client = TestClient(app)

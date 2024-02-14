@@ -42,13 +42,14 @@ class AppSettings(BaseSettings):
 
     @property
     def db_dsn(self):
-        return f'postgresql+asyncpg://{self.db_user}:{self.db_password.get_secret_value()}@{self.db_host}:{self.db_port}/{self.db_name}'
+        return f'postgresql+asyncpg://{self.db_user}:{self.db_password.get_secret_value()}@' \
+               f'{self.db_host}:{self.db_port}/{self.db_name}'
 
     @property
     def db_dsn_test(self):
         return f'postgresql+asyncpg://{self.db_user_test}:{self.db_password_test.get_secret_value()}@' \
                f'{self.db_host_test}:{self.db_port_test}/{self.db_name_test}'
-    
+
     @property
     def temp_dir(self):
         return os.path.join(self.base_upload_dir, self.temp_directory)

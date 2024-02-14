@@ -1,5 +1,3 @@
-import uuid
-
 from fastapi_users import FastAPIUsers
 from fastapi_users.authentication import BearerTransport, AuthenticationBackend, JWTStrategy
 
