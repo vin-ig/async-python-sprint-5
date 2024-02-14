@@ -8,7 +8,6 @@ services:
       - .docker-env
     volumes:
       - ./pgdata:/var/lib/postgresql/data
-#    restart: always
     ports:
       - "5500:5432"
     networks:
@@ -29,19 +28,19 @@ services:
     ports:
       - "5050:5432"
 
-#  app:
-#    build:
-#      context: .
-#    container_name: sprint_5_app
-#    command: ["./docker/app.sh"]
-#    env_file:
-#      - .docker-env
-#    ports:
-#      - "8000:8000"
-#    depends_on:
-#      - db
-#    networks:
-#      - backend
+  app:
+    build:
+      context: .
+    container_name: sprint_5_app
+    command: ["./docker/app.sh"]
+    env_file:
+      - .docker-env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - backend
 
 volumes:
   pgdata:
