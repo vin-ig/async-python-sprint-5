@@ -9,7 +9,7 @@ from starlette.responses import FileResponse
 
 from .utils import save_file, prepare_full_path, find_file, get_archive
 from ..auth.auth import current_user
-from ..core.config import app_settings, ZIP
+from ..core.config import app_settings, ZIP, logger
 from ..db.db import get_async_session
 from ..models import User, File
 
@@ -75,8 +75,14 @@ async def download_file(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail='File not found',
             )
-        file_resp = FileResponse(file.filename)
-        return file_resp
+        if os.path.isfile(file.filename):
+            return FileResponse(file.filename)
+        else:
+            logger.info(f'File "{file.filename}" does not exist')
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f'File "{file.filename}" does not exist',
+            )
 
     if compression in ZIP and isinstance(array, (tuple, list)):
         shutil.rmtree(app_settings.arch_dir, ignore_errors=True)
