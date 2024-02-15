@@ -2,6 +2,7 @@ import os
 import tarfile
 import zipfile
 
+import aiofiles
 import py7zr
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -44,9 +45,13 @@ async def save_file(file: File, path: str, filename: str) -> None:
         path += '/'
     path = path.lstrip('/')
     os.makedirs(path, exist_ok=True)
-    with open(path + filename, 'wb') as upload_file:
-        file_content = await file.read()
-        upload_file.write(file_content)
+    chunk_size = 1024
+    async with aiofiles.open(path + filename, 'wb') as upload_file:
+        while True:
+            chunk = await file.read(chunk_size)
+            if not chunk:
+                break
+            await upload_file.write(chunk)
 
 
 def prepare_full_path(path: str, filename: str) -> list[str]:

@@ -10,8 +10,7 @@ services:
       - ./pgdata:/var/lib/postgresql/data
     ports:
       - "5500:5432"
-    networks:
-      - backend
+
     healthcheck:
       test: pg_isready -U postgres -d postgres
       interval: 10s
@@ -38,13 +37,9 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - db
-    networks:
-      - backend
+      db:
+        condition: service_healthy
+
 
 volumes:
   pgdata:
-
-networks:
-  backend:
-    driver: bridge
